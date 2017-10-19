@@ -1,0 +1,90 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../iron-test-helpers/test-helpers.js"></script>
+    <script src="../../iron-test-helpers/mock-interactions.js"></script>
+    <link rel="import" href="../web-url-input.html">
+  </head>
+  <body>
+
+    <test-fixture id="basic">
+      <template>
+        <web-url-input purpose="test"></web-url-input>
+      </template>
+    </test-fixture>
+
+    <script>
+    /* global fixture, assert, sinon, MockInteractions */
+    suite('basic', function() {
+
+      var element;
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      test('`web-url-input` is hidden by default', function() {
+        assert.equal(element.style.display, 'none');
+      });
+
+      test('Computes _autocompleteTarget', function() {
+        var input = Polymer.dom(element.root).querySelector('paper-input');
+        assert.isTrue(element._autocompleteTarget === input);
+      });
+
+      test('Should query history', function() {
+        element.opened = true;
+        var input = Polymer.dom(element.root).querySelector('paper-input');
+        var spy = sinon.stub();
+        element.addEventListener('url-history-query', spy);
+        element.value = 'h';
+        MockInteractions.keyEventOn(input.inputElement, 'input', 97, [], 'a');
+        assert.isTrue(spy.calledOnce, 'Fired url-value-changed event');
+      });
+
+      test('Fires open-web-url event', function() {
+        const value = 'https://test.com';
+        element.value = value;
+        element.opened = true;
+        var eventData;
+        element.addEventListener('open-web-url', function clb(e) {
+          element.removeEventListener('open-web-url', clb);
+          eventData = e.detail;
+        });
+        var button = Polymer.dom(element.root).querySelector('paper-button');
+        MockInteractions.tap(button);
+        assert.typeOf(eventData, 'object');
+        assert.equal(eventData.url, value);
+        assert.equal(eventData.purpose, 'test');
+      });
+
+      // This should be tested at the end
+      test('Accepts selection on enter', function() {
+        element.opened = true;
+        var called = false;
+        element._onEnter = function() {
+          called = true;
+        };
+        element.value = 'abc';
+        var input = Polymer.dom(element.root).querySelector('paper-input');
+        MockInteractions.keyDownOn(input.inputElement, 13, []);
+        assert.isTrue(called);
+      });
+    });
+    </script>
+
+  </body>
+</html>
