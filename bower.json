@@ -1,7 +1,7 @@
 {
   "name": "web-url-input",
   "description": "An element to display a dialog to enter an URL with auto hints",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "Apache-2.0 OR CC-BY-4.0",
   "authors": [
     "The Advanced REST client authors <arc@mulesoft.com>"
