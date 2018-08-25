@@ -12,7 +12,8 @@
     "lint": "polymer lint web-url-input.html",
     "test-sauce": "polymer test --plugin sauce --job-name \"web-url-input:local-test\"",
     "test": "polymer test --plugin local",
-    "update-types": "gen-typescript-declarations --deleteExisting --outDir ."
+    "update-types": "gen-typescript-declarations --deleteExisting --outDir .",
+    "analysis": "polymer analyze -i web-url-input.html > analysis.json"
   },
   "repository": {
     "type": "git",

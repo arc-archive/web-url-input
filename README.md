@@ -18,7 +18,7 @@ An element to display a dialog to enter an URL with auto hints
 -->
 
 ```html
-<web-url-input></web-url-input>
+<web-url-input opened></web-url-input>
 ```
 
 ### API components

@@ -1,0 +1,332 @@
+{
+  "schema_version": "1.0.0",
+  "elements": [
+    {
+      "description": "`<web-url-input>`\n\nAn element to display a dialog to enter an URL with auto hints\n\n### Example\n\n```html\n<web-url-input purpose=\"open-browser\"></web-url-input>\n```\n\n### Styling\n\n`<web-url-input>` provides the following custom properties and mixins for styling:\n\nCustom property | Description | Default\n----------------|-------------|----------\n`--web-url-input` | Mixin applied to the element | `{}`\n`--web-url-input-background-color` | Background color of the element | `#fff`\n`--web-url-input-input` | Mixin applied to the paper input element | `{}`\n`--web-url-input-button` | Mixin applied to the paper button element | `{}`",
+      "summary": "",
+      "path": "web-url-input.html",
+      "properties": [
+        {
+          "name": "value",
+          "type": "string | null | undefined",
+          "description": "Current URL value.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 100,
+              "column": 8
+            },
+            "end": {
+              "line": 103,
+              "column": 9
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "notify": true,
+              "attributeType": "String"
+            }
+          }
+        },
+        {
+          "name": "_autocompleteTarget",
+          "type": "HTMLElement",
+          "description": "Input target for the `paper-autocomplete` element.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 109,
+              "column": 8
+            },
+            "end": {
+              "line": 109,
+              "column": 35
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "attributeType": "Object"
+            }
+          }
+        },
+        {
+          "name": "suggesionsOpened",
+          "type": "boolean | null | undefined",
+          "description": "True when a suggestion box for the URL is opened.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 111,
+              "column": 8
+            },
+            "end": {
+              "line": 114,
+              "column": 9
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "notify": true,
+              "attributeType": "Boolean"
+            }
+          }
+        },
+        {
+          "name": "purpose",
+          "type": "string | null | undefined",
+          "description": "A value to be set in the detail object of `open-web-url` custom event.\nThe editor can server different purposes. Re-set the purpose to inform\nthe application about purpose of the event.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 120,
+              "column": 8
+            },
+            "end": {
+              "line": 120,
+              "column": 23
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "attributeType": "String"
+            }
+          }
+        }
+      ],
+      "methods": [
+        {
+          "name": "connectedCallback",
+          "description": "",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 129,
+              "column": 4
+            },
+            "end": {
+              "line": 135,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "disconnectedCallback",
+          "description": "",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 137,
+              "column": 4
+            },
+            "end": {
+              "line": 140,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_autocompleteQuery",
+          "description": "",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 142,
+              "column": 4
+            },
+            "end": {
+              "line": 150,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "e"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_makeQuery",
+          "description": "",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 152,
+              "column": 4
+            },
+            "end": {
+              "line": 180,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "q"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_keyDownHandler",
+          "description": "",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 182,
+              "column": 4
+            },
+            "end": {
+              "line": 189,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "e"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_onEnter",
+          "description": "A handler called when the user press \"enter\" in any of the form fields.\nThis will send an `open-web-url` event.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 194,
+              "column": 4
+            },
+            "end": {
+              "line": 208,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        }
+      ],
+      "staticMethods": [],
+      "demos": [
+        {
+          "url": "demo/index.html",
+          "description": ""
+        }
+      ],
+      "metadata": {},
+      "sourceRange": {
+        "start": {
+          "line": 95,
+          "column": 2
+        },
+        "end": {
+          "line": 217,
+          "column": 3
+        }
+      },
+      "privacy": "public",
+      "superclass": "HTMLElement",
+      "name": "UiElements.WebUrlInput",
+      "attributes": [
+        {
+          "name": "value",
+          "description": "Current URL value.",
+          "sourceRange": {
+            "start": {
+              "line": 100,
+              "column": 8
+            },
+            "end": {
+              "line": 103,
+              "column": 9
+            }
+          },
+          "metadata": {},
+          "type": "string | null | undefined"
+        },
+        {
+          "name": "suggesions-opened",
+          "description": "True when a suggestion box for the URL is opened.",
+          "sourceRange": {
+            "start": {
+              "line": 111,
+              "column": 8
+            },
+            "end": {
+              "line": 114,
+              "column": 9
+            }
+          },
+          "metadata": {},
+          "type": "boolean | null | undefined"
+        },
+        {
+          "name": "purpose",
+          "description": "A value to be set in the detail object of `open-web-url` custom event.\nThe editor can server different purposes. Re-set the purpose to inform\nthe application about purpose of the event.",
+          "sourceRange": {
+            "start": {
+              "line": 120,
+              "column": 8
+            },
+            "end": {
+              "line": 120,
+              "column": 23
+            }
+          },
+          "metadata": {},
+          "type": "string | null | undefined"
+        }
+      ],
+      "events": [
+        {
+          "type": "CustomEvent",
+          "name": "open-web-url",
+          "description": "Fired when the URL has been accepted",
+          "metadata": {}
+        },
+        {
+          "type": "CustomEvent",
+          "name": "value-changed",
+          "description": "Fired when the `value` property changes.",
+          "metadata": {}
+        },
+        {
+          "type": "CustomEvent",
+          "name": "suggesions-opened-changed",
+          "description": "Fired when the `suggesionsOpened` property changes.",
+          "metadata": {}
+        }
+      ],
+      "styling": {
+        "cssVariables": [],
+        "selectors": []
+      },
+      "slots": [],
+      "tagname": "web-url-input",
+      "mixins": [
+        "Polymer.IronOverlayBehavior"
+      ]
+    }
+  ]
+}
