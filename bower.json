@@ -1,7 +1,7 @@
 {
   "name": "web-url-input",
   "description": "An element to display a dialog to enter an URL with auto hints",
-  "version": "2.0.0-preview",
+  "version": "2.0.0",
   "license": "Apache-2.0",
   "authors": [
     "Pawel Psztyc",
