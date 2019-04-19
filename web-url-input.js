@@ -77,7 +77,8 @@ class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) 
       transition: var(--action-button-transition);
     }
 
-    .action-button:hover {
+    .action-button:hover,
+    .action-button:focus {
       background-color: var(--action-button-hover-background-color);
       color: var(--action-button-hover-color);
     }
@@ -173,23 +174,34 @@ class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) 
     this._makeQuery(e.detail.value);
   }
 
-  _makeQuery(q) {
-    const e = new CustomEvent('url-history-query', {
+  _dispatch(type, detail) {
+    const e = new CustomEvent(type, {
       bubbles: true,
       composed: true,
       cancelable: true,
-      detail: {
-        q
-      }
+      detail
     });
     this.dispatchEvent(e);
+    return e;
+  }
+
+  _dispatchQueryEvent(q) {
+    return this._dispatch('url-history-query', {
+      q
+    });
+  }
+
+  _dispatchOpenEvent() {
+    return this._dispatch('open-web-url', {
+      url: this.value,
+      purpose: this.purpose
+    });
+  }
+
+  _makeQuery(q) {
+    const e = this._dispatchQueryEvent(q);
     if (!e.defaultPrevented) {
-      console.warn(`URL history model not found`);
-      this.$.ac.source = [];
-      return;
-    }
-    if (e.detail.error) {
-      console.error(e.detail.error);
+      console.warn('URL history model not found');
       this.$.ac.source = [];
       return;
     }
@@ -198,7 +210,8 @@ class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) 
       result = result.map((item) => item.url);
       this.$.ac.source = result;
     })
-    .catch(() => {
+    .catch((cause) => {
+      console.warn(cause);
       this.$.ac.source = [];
     });
   }
@@ -219,28 +232,25 @@ class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) 
     if (this.suggesionsOpened) {
       return;
     }
-    this.dispatchEvent(new CustomEvent('open-web-url', {
-      bubbles: true,
-      composed: true,
-      cancelable: true,
-      detail: {
-        url: this.value,
-        purpose: this.purpose
-      }
-    }));
+    this._dispatchOpenEvent();
     this.opened = false;
   }
 
   _computeHasValue(value) {
     return !!value;
   }
-
   /**
    * Fired when the URL has been accepted
    *
    * @event open-web-url
    * @param {String} url The URL to open
    * @param {String} purpose Value of the `purpose` property.
+   */
+  /**
+   * Dispatched to query for URL history.
+   *
+   * @event url-history-query
+   * @param {String} q
    */
 }
 window.customElements.define('web-url-input', WebUrlInput);

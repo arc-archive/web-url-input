@@ -13,7 +13,7 @@
   </head>
   <body>
 
-    <test-fixture id="basic">
+    <test-fixture id="Basic">
       <template>
         <web-url-input purpose="test"></web-url-input>
       </template>
@@ -26,7 +26,7 @@
     suite('basic', function() {
       let element;
       setup(function(done) {
-        element = fixture('basic');
+        element = fixture('Basic');
         flush(() => done());
       });
 
@@ -37,6 +37,11 @@
       test('Computes _autocompleteTarget', function() {
         const input = element.shadowRoot.querySelector('paper-input');
         assert.isTrue(element._autocompleteTarget === input);
+      });
+
+      test('Computes hasValue when has value', function() {
+        element.value = 'https://domain.com';
+        assert.isTrue(element.hasValue);
       });
 
       test('Should query history', function() {
@@ -76,6 +81,175 @@
         const input = element.shadowRoot.querySelector('paper-input');
         MockInteractions.pressAndReleaseKeyOn(input.inputElement.inputElement, 13, [], 'Enter');
         assert.isTrue(called);
+      });
+    });
+
+    suite('_dispatch()', () => {
+      let element;
+      setup(function() {
+        element = fixture('Basic');
+      });
+
+      test('Dispatches an event', () => {
+        const spy = sinon.spy();
+        element.addEventListener('test', spy);
+        element._dispatch('test', {});
+        assert.isTrue(spy.called);
+      });
+
+      test('Event has detail value', () => {
+        const spy = sinon.spy();
+        element.addEventListener('test', spy);
+        const detail = {test: true};
+        element._dispatch('test', detail);
+        assert.isTrue(spy.args[0][0].detail === detail);
+      });
+
+      test('Returns an event', () => {
+        const result = element._dispatch('test', {});
+        assert.typeOf(result, 'customevent');
+      });
+
+      test('Event is cancelable', () => {
+        const result = element._dispatch('test', {});
+        assert.isTrue(result.cancelable);
+      });
+
+      test('Event bubbles', () => {
+        const result = element._dispatch('test', {});
+        assert.isTrue(result.bubbles);
+      });
+    });
+
+    suite('_dispatchQueryEvent()', () => {
+      let element;
+      setup(function() {
+        element = fixture('Basic');
+      });
+
+      test('Calls _dispatch() with arguments', () => {
+        const spy = sinon.spy(element, '_dispatch');
+        element._dispatchQueryEvent('test');
+        assert.equal(spy.args[0][0], 'url-history-query');
+        assert.deepEqual(spy.args[0][1], {q: 'test'});
+      });
+
+      test('Returns an event', () => {
+        const result = element._dispatchQueryEvent('test');
+        assert.typeOf(result, 'customevent');
+      });
+    });
+
+    suite('_dispatchOpenEvent()', () => {
+      let element;
+      setup(function() {
+        element = fixture('Basic');
+      });
+
+      test('Calls _dispatch() with arguments', () => {
+        element.value = 'https://';
+        element.purpose = 'test';
+        const spy = sinon.spy(element, '_dispatch');
+        element._dispatchOpenEvent();
+        assert.equal(spy.args[0][0], 'open-web-url');
+        assert.deepEqual(spy.args[0][1], {url: 'https://', purpose: 'test'});
+      });
+
+      test('Returns an event', () => {
+        const result = element._dispatchOpenEvent();
+        assert.typeOf(result, 'customevent');
+      });
+    });
+
+    suite('_makeQuery()', () => {
+      const query = 'test-query';
+      let element;
+      setup(function(done) {
+        element = fixture('Basic');
+        flush(() => done());
+      });
+
+      test('Calls _dispatchQueryEvent() with arguments', () => {
+        const spy = sinon.spy(element, '_dispatchQueryEvent');
+        element._makeQuery(query);
+        assert.equal(spy.args[0][0], query);
+      });
+
+      test('Sets autocomplete source when event not handled', () => {
+        element._makeQuery(query);
+        assert.deepEqual(element.$.ac.source, []);
+      });
+
+      test('Sets autocomplete source', (done) => {
+        element.addEventListener('url-history-query', function f(e) {
+          element.removeEventListener('url-history-query', f);
+          e.preventDefault();
+          e.detail.result = Promise.resolve([{
+            url: 'url1'
+          }, {
+            url: 'url2'
+          }]);
+        });
+
+        element._makeQuery(query);
+        setTimeout(() => {
+          assert.deepEqual(element.$.ac.source, ['url1', 'url2']);
+          done();
+        });
+      });
+
+      test('Sets autocomplete when error', (done) => {
+        element.addEventListener('url-history-query', function f(e) {
+          element.removeEventListener('url-history-query', f);
+          e.preventDefault();
+          e.detail.result = Promise.reject('test');
+        });
+        element._makeQuery(query);
+        setTimeout(() => {
+          assert.deepEqual(element.$.ac.source, []);
+          done();
+        });
+      });
+    });
+
+    suite('_autocompleteQuery()', () => {
+      let element;
+      let ev;
+      setup(function(done) {
+        element = fixture('Basic');
+        flush(() => {
+          ev = {
+            stopPropagation: () => {},
+            preventDefault: () => {},
+            detail: {},
+            target: element.$.ac
+          };
+          done();
+        });
+      });
+
+      test('Stops propagation of the event', () => {
+        const spy = sinon.spy(ev, 'stopPropagation');
+        element._autocompleteQuery(ev);
+        assert.isTrue(spy.called);
+      });
+
+      test('Prevent\'s event default', () => {
+        const spy = sinon.spy(ev, 'preventDefault');
+        element._autocompleteQuery(ev);
+        assert.isTrue(spy.called);
+      });
+
+      test('Sets autocomplete source when no value', () => {
+        element._autocompleteQuery(ev);
+        assert.deepEqual(element.$.ac.source, []);
+      });
+
+      test('Calls _makeQuery() when detail has value', () => {
+        ev.detail.value = 'test';
+        const spy = sinon.spy(element, '_makeQuery');
+        element._autocompleteQuery(ev);
+        assert.equal(spy.args[0][0], 'test');
       });
     });
     </script>

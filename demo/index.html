@@ -17,34 +17,59 @@
   <script type="module" src="../../../@polymer/paper-toast/paper-toast.js"></script>
   <script type="module" src="../web-url-input.js"></script>
   <style>
-    body,
+  body,
   html {
     background-color: #e5e5e5 !important;
     margin: 0 !important;
     padding: 0 !important;
   }
+
+  html {
+    --primary-color: #00A2DF;
+    --action-button-background-color: var(--primary-color);
+    --action-button-background-image: none;
+    --action-button-color: #fff;
+    --action-button-transition: background-color 300ms linear;
+    --action-button-hover-background-color: #04b3f5;
+    --action-button-hover-color: #fff;
+    --action-button-disabled-background-color: #eaeaea;
+    --action-button-disabled-color: #a8a8a8;
+
+    --box-shadow-4dp: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 10px 0 rgba(0, 0, 0, 0.12),
+                  0 2px 4px -1px rgba(0, 0, 0, 0.4);
+    --box-shadow-6dp: 0 6px 10px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 18px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 5px -1px rgba(0, 0, 0, 0.4);
+  }
+
+  html.dark,
+  html.dark body {
+    background-color: #263238 !important;
+    --primary-color: #00A2DF;
+    --web-url-input-background-color: #455A64;
+    --paper-input-container-color: #fff;
+    --error-color: #FF5722;
+    --paper-input-container-input-color: #fff;
+    --action-button-background-color: #F44336;
+    --action-button-hover-background-color: #E53935;
+  }
+
+  .card {
+    --box-shadow: var(--box-shadow-4dp);
+    padding: 20px;
+    margin-top: 120px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    background-color: #fff;
+  }
+
+  .options-row {
+    margin: 12px 0;
+  }
   </style>
   <custom-style>
-    <style include="demo-pages-shared-styles">
-      :root {
-      --primary-color: #00A2DF;
-      --action-button: {
-        background-color: var(--primary-color);
-        background-image: none;
-        color: white;
-        transition: background-color 300ms linear;
-      };
-    }
-
-    .card {
-      @apply --shadow-elevation-4dp;
-      padding: 20px;
-      margin-top: 120px;
-      margin-bottom: 20px;
-      box-sizing: border-box;
-      background-color: #fff;
-    }
-    </style>
+    <style include="demo-pages-shared-styles"></style>
   </custom-style>
 </head>
 
@@ -55,6 +80,9 @@
       <url-history-model></url-history-model>
       <section class="vertical-section-container centered card" role="main">
         <paper-button raised="" on-click="openEditor">Open the URL editor</paper-button>
+        <div class="options-row">
+          <label><input type="checkbox" on-change="_toggleTheme"/> Dark theme</label>
+        </div>
       </section>
       <paper-toast text="Open browser window requested" opened="{{actionToastOpened}}"></paper-toast>
     </template>
@@ -75,6 +103,10 @@
         bubbles: true
       });
       document.dispatchEvent(ev);
+    };
+
+    app._toggleTheme = () => {
+      document.querySelector('html').classList.toggle('dark');
     };
     window.addEventListener('open-web-url', app.openUrlHandler);
   })(document.getElementById('app'));
