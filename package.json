@@ -19,10 +19,10 @@
     "@polymer/iron-test-helpers": "^3.0.0",
     "@polymer/paper-toast": "^3.0.0",
     "@polymer/test-fixture": "^4.0.2",
-    "@webcomponents/webcomponentsjs": "^2.0.0",
+    "@webcomponents/webcomponentsjs": "^2.2.9",
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
-    "sinon": "^7.2.3",
+    "sinon": "^7.3.2",
     "wct-mocha": "^1.0.0",
     "web-animations-js": "^2.3.1"
   },
@@ -48,12 +48,9 @@
   ],
   "dependencies": {
     "@advanced-rest-client/paper-autocomplete": "^3.0.0-preview.2",
-    "@polymer/iron-flex-layout": "^3.0.0",
     "@polymer/iron-overlay-behavior": "^3.0.0",
-    "@polymer/neon-animation": "^3.0.0",
     "@polymer/paper-button": "^3.0.0",
-    "@polymer/paper-input": "^3.0.0",
-    "@polymer/paper-styles": "^3.0.0",
+    "@polymer/paper-input": "^3.0.2",
     "@polymer/polymer": "^3.0.0"
   }
 }

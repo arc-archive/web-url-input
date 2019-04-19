@@ -16,9 +16,7 @@ import {mixinBehaviors} from '../../@polymer/polymer/lib/legacy/class.js';
 import '../../@polymer/paper-input/paper-input.js';
 import '../../@polymer/paper-button/paper-button.js';
 import '../../@advanced-rest-client/paper-autocomplete/paper-autocomplete.js';
-import '../../@polymer/iron-flex-layout/iron-flex-layout.js';
 import {IronOverlayBehavior} from '../../@polymer/iron-overlay-behavior/iron-overlay-behavior.js';
-import '../../@polymer/paper-styles/shadow.js';
 import {html} from '../../@polymer/polymer/lib/utils/html-tag.js';
 /**
  * An element to display a dialog to enter an URL with auto hints
@@ -47,21 +45,20 @@ import {html} from '../../@polymer/polymer/lib/utils/html-tag.js';
  */
 class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) {
   static get template() {
-    return html`
-    <style>
+    return html`<style>
     :host {
       background-color: var(--web-url-input-background-color, #fff);
       padding: 20px;
       top: 20px;
       max-width: 90%;
       width: 100%;
-      @apply --shadow-elevation-6dp;
-      @apply --web-url-input;
+      box-shadow: var(--box-shadow-6dp);
     }
 
     .inputs {
-      @apply --layout-horizontal;
-      @apply --layout-center;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
     }
 
     .editor {
@@ -69,15 +66,30 @@ class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) 
     }
 
     .main-input {
-      @apply --layout-flex;
-      @apply --web-url-input-input;
+      flex: 1;
+      flex-basis: 0.000000001px;
     }
 
     .action-button {
-      @apply --action-button;
-      @apply --web-url-input-button;
+      background-color: var(--action-button-background-color);
+      background-image: var(--action-button-background-image);
+      color: var(--action-button-color);
+      transition: var(--action-button-transition);
+    }
+
+    .action-button:hover {
+      background-color: var(--action-button-hover-background-color);
+      color: var(--action-button-hover-color);
+    }
+
+    .action-button[disabled] {
+      background: var(--action-button-disabled-background-color);
+      color: var(--action-button-disabled-color);
+      cursor: auto;
+      pointer-events: none;
     }
     </style>
+
     <div class="editor">
       <div class="inputs">
         <paper-input
@@ -89,9 +101,11 @@ class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) 
           required=""
           auto-validate=""
           error-message="The URL is required."></paper-input>
-        <paper-button class="action-button" on-click="_onEnter">Open</paper-button>
+        <paper-button class="action-button" on-click="_onEnter" disabled\$="[[!hasValue]]">Open</paper-button>
       </div>
-      <paper-autocomplete id="ac" loader=""
+      <paper-autocomplete
+        id="ac"
+        loader=""
         open-on-focus=""
         target="[[_autocompleteTarget]]"
         on-query="_autocompleteQuery"
@@ -122,7 +136,12 @@ class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) 
        * The editor can server different purposes. Re-set the purpose to inform
        * the application about purpose of the event.
        */
-      purpose: String
+      purpose: String,
+      /**
+       * True when the input has any value.
+       * @type {Boolean}
+       */
+      hasValue: {type: Boolean, value: false, computed: '_computeHasValue(value)'}
     };
   }
 
@@ -210,6 +229,10 @@ class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) 
       }
     }));
     this.opened = false;
+  }
+
+  _computeHasValue(value) {
+    return !!value;
   }
 
   /**
