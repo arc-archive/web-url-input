@@ -1,42 +1,17 @@
 {
+  "name": "@advanced-rest-client/web-url-input",
   "description": "An element to display a dialog to enter an URL with auto hints",
+  "version": "3.0.0-preview.2",
+  "license": "Apache-2.0",
+  "main": "web-url-input.js",
   "keywords": [
     "web-components",
-    "polymer"
+    "api-components",
+    "url-input"
   ],
   "repository": {
     "type": "git",
     "url": "git://github.com/advanced-rest-client/web-url-input.git"
-  },
-  "name": "@advanced-rest-client/web-url-input",
-  "version": "3.0.0-preview.2",
-  "license": "Apache-2.0",
-  "devDependencies": {
-    "@advanced-rest-client/arc-models": "^3.0.0-preview.4",
-    "@polymer/gen-typescript-declarations": "^1.6.1",
-    "@polymer/iron-component-page": "^4.0.0",
-    "@polymer/iron-demo-helpers": "^3.0.0",
-    "@polymer/iron-test-helpers": "^3.0.0",
-    "@polymer/paper-toast": "^3.0.0",
-    "@polymer/test-fixture": "^4.0.2",
-    "@webcomponents/webcomponentsjs": "^2.2.9",
-    "chai": "^4.2.0",
-    "mocha": "^5.2.0",
-    "sinon": "^7.3.2",
-    "wct-mocha": "^1.0.0",
-    "web-animations-js": "^2.3.1"
-  },
-  "main": "web-url-input.js",
-  "scripts": {
-    "lint": "polymer lint web-url-input.html",
-    "test-sauce": "polymer test --plugin sauce --job-name \"web-url-input:local-test\"",
-    "test": "polymer test --plugin local",
-    "update-types": "gen-typescript-declarations --deleteExisting --outDir .",
-    "analysis": "polymer analyze -i web-url-input.html > analysis.json"
-  },
-  "bugs": {
-    "url": "https://github.com/advanced-rest-client/web-url-input/issues",
-    "email": "arc@mulesoft.com"
   },
   "authors": [
     "Pawel Psztyc",
@@ -46,11 +21,56 @@
     "Pawel Psztyc",
     "The Advanced REST client authors <arc@mulesoft.com>"
   ],
+  "bugs": {
+    "url": "https://github.com/advanced-rest-client/web-url-input/issues",
+    "email": "arc@mulesoft.com"
+  },
+  "devDependencies": {
+    "@advanced-rest-client/a11y-suite": "^1.0.0",
+    "@advanced-rest-client/arc-demo-helper": "^1.0.3",
+    "@advanced-rest-client/testing-karma-sl": "^1.0.2",
+    "@commitlint/cli": "^7.0.0",
+    "@commitlint/config-conventional": "^7.0.0",
+    "@open-wc/eslint-config": "^0.4.1",
+    "@open-wc/prettier-config": "^0.1.0",
+    "@open-wc/testing": "^0.11.1",
+    "@open-wc/testing-karma": "^2.0.6",
+    "@polymer/iron-test-helpers": "^3.0.1",
+    "@polymer/gen-typescript-declarations": "^1.6.2",
+    "sinon": "^7.3.2",
+    "husky": "^1.0.0",
+    "lint-staged": "^8.0.0",
+    "owc-dev-server": "^1.0.0",
+    "webpack-merge": "^4.1.5",
+    "web-animations-js": "^2.3.2"
+  },
   "dependencies": {
-    "@advanced-rest-client/paper-autocomplete": "^3.0.0-preview.2",
-    "@polymer/iron-overlay-behavior": "^3.0.0",
+    "@advanced-rest-client/arc-models": "^3.0.0-preview.6",
+    "@advanced-rest-client/paper-autocomplete": "^3.0.0",
+    "@advanced-rest-client/arc-overlay-mixin": "^1.0.1",
     "@polymer/paper-button": "^3.0.0",
     "@polymer/paper-input": "^3.0.2",
-    "@polymer/polymer": "^3.0.0"
+    "lit-element": "^2.0.1"
+  },
+  "scripts": {
+    "test": "karma start --coverage",
+    "update-types": "gen-typescript-declarations --deleteExisting --outDir .",
+    "start": "owc-dev-server --app-index demo/index.html --open --watch",
+    "lint:eslint": "eslint --ext .js,.html .",
+    "format:eslint": "eslint --ext .js,.html . --fix",
+    "lint:prettier": "prettier \"**/*.js\" --list-different || (echo '↑↑ these files are not prettier formatted ↑↑' && exit 1)",
+    "format:prettier": "prettier \"**/*.js\" --write",
+    "lint": "npm run lint:eslint && npm run lint:prettier",
+    "format": "npm run format:eslint && npm run format:prettier",
+    "test:watch": "karma start --auto-watch=true --single-run=false",
+    "test:legacy": "karma start --legacy --coverage",
+    "test:legacy:watch": "karma start --legacy --auto-watch=true --single-run=false",
+    "test:sl": "karma start karma.sl.config.js --legacy --coverage"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }

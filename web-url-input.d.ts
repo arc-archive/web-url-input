@@ -5,21 +5,16 @@
  *   https://github.com/Polymer/tools/tree/master/packages/gen-typescript-declarations
  *
  * To modify these typings, edit the source file(s):
- *   web-url-input.html
+ *   web-url-input.js
  */
 
 
 // tslint:disable:variable-name Describing an API that's defined elsewhere.
 // tslint:disable:no-any describes the API as best we are able today
 
-/// <reference path="../polymer/types/polymer-element.d.ts" />
-/// <reference path="../polymer/types/lib/legacy/class.d.ts" />
-/// <reference path="../paper-input/paper-input.d.ts" />
-/// <reference path="../paper-button/paper-button.d.ts" />
-/// <reference path="../paper-autocomplete/paper-autocomplete.d.ts" />
-/// <reference path="../iron-flex-layout/iron-flex-layout.d.ts" />
-/// <reference path="../iron-overlay-behavior/iron-overlay-behavior.d.ts" />
-/// <reference path="../paper-styles/shadow.d.ts" />
+import {LitElement, html, css} from 'lit-element';
+
+import {ArcOverlayMixin} from '@advanced-rest-client/arc-overlay-mixin/arc-overlay-mixin.js';
 
 declare namespace UiElements {
 
@@ -44,7 +39,7 @@ declare namespace UiElements {
    * `--web-url-input-button` | Mixin applied to the paper button element | `{}`
    */
   class WebUrlInput extends
-    Polymer.IronOverlayBehavior(
+    ArcOverlayMixin(
     Object) {
 
     /**
@@ -53,14 +48,16 @@ declare namespace UiElements {
     value: string|null|undefined;
 
     /**
+     * True when a suggestion box for the URL is opened.
+     */
+    suggestionsOpened: boolean|null|undefined;
+    readonly _autocomplete: any;
+    readonly _model: any;
+
+    /**
      * Input target for the `paper-autocomplete` element.
      */
     _autocompleteTarget: HTMLElement|null;
-
-    /**
-     * True when a suggestion box for the URL is opened.
-     */
-    suggesionsOpened: boolean|null|undefined;
 
     /**
      * A value to be set in the detail object of `open-web-url` custom event.
@@ -68,20 +65,66 @@ declare namespace UiElements {
      * the application about purpose of the event.
      */
     purpose: string|null|undefined;
+    render(): any;
     connectedCallback(): void;
     disconnectedCallback(): void;
-    _autocompleteQuery(e: any): void;
-    _makeQuery(q: any): void;
-    _keyDownHandler(e: any): void;
+    firstUpdated(): void;
+
+    /**
+     * Handler for the query event coming from the aitocomplete.
+     * It makes the query to the data store for history data.
+     */
+    _autocompleteQuery(e: CustomEvent|null): void;
+
+    /**
+     * Dispatches `open-web-url` custom event and returns it.
+     *
+     * @returns Dispatched event
+     */
+    _dispatchOpenEvent(): CustomEvent|null;
+
+    /**
+     * Queries the model for history data.
+     *
+     * @param q User query from the input field
+     * @returns [description]
+     */
+    _makeQuery(q: String|null): any;
+
+    /**
+     * A handler for keyboard key down event bubbling through this element.
+     * If the target is the input and the key is Enter key then it calls
+     * `_onEnter()` function
+     */
+    _keyDownHandler(e: KeyboardEvent|null): void;
 
     /**
      * A handler called when the user press "enter" in any of the form fields.
      * This will send an `open-web-url` event.
      */
     _onEnter(): void;
+
+    /**
+     * Sets value of the control when input value changes
+     */
+    _inputChanged(e: Event): void;
+
+    /**
+     * Overrides from ArcOverlayMixin
+     */
+    _onCaptureEsc(e: Event): void;
+
+    /**
+     * Handler for `opened-changed` event dispatched from the autocomplete.
+     */
+    _suggestionsOpenedHandler(e: CustomEvent|null): void;
+    _openedChanged(opened: any): void;
   }
 }
 
-interface HTMLElementTagNameMap {
-  "web-url-input": UiElements.WebUrlInput;
+declare global {
+
+  interface HTMLElementTagNameMap {
+    "web-url-input": UiElements.WebUrlInput;
+  }
 }

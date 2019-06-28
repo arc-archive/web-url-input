@@ -11,13 +11,12 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 */
-import {PolymerElement} from '../../@polymer/polymer/polymer-element.js';
-import {mixinBehaviors} from '../../@polymer/polymer/lib/legacy/class.js';
-import '../../@polymer/paper-input/paper-input.js';
-import '../../@polymer/paper-button/paper-button.js';
-import '../../@advanced-rest-client/paper-autocomplete/paper-autocomplete.js';
-import {IronOverlayBehavior} from '../../@polymer/iron-overlay-behavior/iron-overlay-behavior.js';
-import {html} from '../../@polymer/polymer/lib/utils/html-tag.js';
+import { LitElement, html, css } from 'lit-element';
+import { ArcOverlayMixin } from '@advanced-rest-client/arc-overlay-mixin/arc-overlay-mixin.js';
+import '@polymer/paper-input/paper-input.js';
+import '@polymer/paper-button/paper-button.js';
+import '@advanced-rest-client/paper-autocomplete/paper-autocomplete.js';
+import '@advanced-rest-client/arc-models/url-history-model.js';
 /**
  * An element to display a dialog to enter an URL with auto hints
  *
@@ -38,14 +37,13 @@ import {html} from '../../@polymer/polymer/lib/utils/html-tag.js';
  * `--web-url-input-input` | Mixin applied to the paper input element | `{}`
  * `--web-url-input-button` | Mixin applied to the paper button element | `{}`
  *
- * @polymer
  * @customElement
  * @memberof UiElements
- * @appliesMixin Polymer.IronOverlayBehavior
+ * @appliesMixin ArcOverlayMixin
  */
-class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) {
-  static get template() {
-    return html`<style>
+class WebUrlInput extends ArcOverlayMixin(LitElement) {
+  static get styles() {
+    return css`
     :host {
       background-color: var(--web-url-input-background-color, #fff);
       padding: 20px;
@@ -88,39 +86,44 @@ class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) 
       color: var(--action-button-disabled-color);
       cursor: auto;
       pointer-events: none;
-    }
-    </style>
+    }`;
+  }
 
+  render() {
+    let { suggestionsOpened, _autocompleteTarget, value } = this;
+    const actionDisabled = !value;
+    if (value === undefined) {
+      value = '';
+    }
+    return html`
     <div class="editor">
       <div class="inputs">
         <paper-input
           label="Enter URL"
-          value="{{value}}"
+          .value="${value}"
+          @input="${this._inputChanged}"
           class="main-input"
           type="url"
-          autofocus=""
-          required=""
-          auto-validate=""
-          error-message="The URL is required."></paper-input>
-        <paper-button class="action-button" on-click="_onEnter" disabled\$="[[!hasValue]]">Open</paper-button>
+          required
+          auto-validate
+          error-message="The URL is required"></paper-input>
+        <paper-button
+          class="action-button"
+          @click="${this._onEnter}"
+          ?disabled="${actionDisabled}">Open</paper-button>
       </div>
-      <paper-autocomplete
-        id="ac"
-        loader=""
-        open-on-focus=""
-        target="[[_autocompleteTarget]]"
-        on-query="_autocompleteQuery"
-        opened="{{suggesionsOpened}}"></paper-autocomplete>
+      <paper-autocomplete loader open-on-focus
+        @query="${this._autocompleteQuery}"
+        .target="${_autocompleteTarget}"
+        .opened="${suggestionsOpened}"
+        @opened-changed="${this._suggestionsOpenedHandler}"></paper-autocomplete>
     </div>`;
   }
 
   static get properties() {
     return {
       // Current URL value.
-      value: {
-        type: String,
-        notify: true
-      },
+      value: { type: String },
       /**
        * Input target for the `paper-autocomplete` element.
        *
@@ -128,22 +131,65 @@ class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) 
        */
       _autocompleteTarget: Object,
       // True when a suggestion box for the URL is opened.
-      suggesionsOpened: {
-        type: Boolean,
-        notify: true
-      },
+      suggestionsOpened: { type: Boolean },
       /**
        * A value to be set in the detail object of `open-web-url` custom event.
        * The editor can server different purposes. Re-set the purpose to inform
        * the application about purpose of the event.
        */
-      purpose: String,
-      /**
-       * True when the input has any value.
-       * @type {Boolean}
-       */
-      hasValue: {type: Boolean, value: false, computed: '_computeHasValue(value)'}
+      purpose: String
     };
+  }
+
+  get value() {
+    return this._value;
+  }
+
+  set value(value) {
+    const old = this._value;
+    if (old === value) {
+      return;
+    }
+    this._value = value;
+    this.requestUpdate('value', old);
+    this.dispatchEvent(new CustomEvent('value-changed', {
+      composed: true,
+      detail: {
+        value
+      }
+    }));
+  }
+
+  get suggestionsOpened() {
+    return this._suggestionsOpened;
+  }
+
+  set suggestionsOpened(value) {
+    const old = this._suggestionsOpened;
+    if (old === value) {
+      return;
+    }
+    this._suggestionsOpened = value;
+    this.requestUpdate('suggestionsOpened', old);
+    this.dispatchEvent(new CustomEvent('suggestionsOpened-changed', {
+      composed: true,
+      detail: {
+        value
+      }
+    }));
+  }
+
+  get _autocomplete() {
+    return this.shadowRoot.querySelector('paper-autocomplete');
+  }
+
+  get _model() {
+    if (!this.__model) {
+      this.__model = document.createElement('url-history-model');
+      this.__model.eventsTarget = this;
+      this.shadowRoot.appendChild(this.__model);
+    }
+    return this.__model;
   }
 
   constructor() {
@@ -154,9 +200,6 @@ class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) 
   connectedCallback() {
     super.connectedCallback();
     this.addEventListener('keydown', this._keyDownHandler);
-    if (!this._autocompleteTarget) {
-      this._autocompleteTarget = this.shadowRoot.querySelector('.main-input');
-    }
   }
 
   disconnectedCallback() {
@@ -164,6 +207,14 @@ class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) 
     this.removeEventListener('keydown', this._keyDownHandler);
   }
 
+  firstUpdated() {
+    this._autocompleteTarget = this.shadowRoot.querySelector('.main-input');
+  }
+  /**
+   * Handler for the query event coming from the aitocomplete.
+   * It makes the query to the data store for history data.
+   * @param {CustomEvent} e
+   */
   _autocompleteQuery(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -173,49 +224,46 @@ class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) 
     }
     this._makeQuery(e.detail.value);
   }
-
-  _dispatch(type, detail) {
-    const e = new CustomEvent(type, {
+  /**
+   * Dispatches `open-web-url` custom event and returns it.
+   * @return {CustomEvent} Dispatched event
+   */
+  _dispatchOpenEvent() {
+    const e = new CustomEvent('open-web-url', {
       bubbles: true,
       composed: true,
       cancelable: true,
-      detail
+      detail: {
+        url: this.value,
+        purpose: this.purpose
+      }
     });
     this.dispatchEvent(e);
     return e;
   }
-
-  _dispatchQueryEvent(q) {
-    return this._dispatch('url-history-query', {
-      q
-    });
-  }
-
-  _dispatchOpenEvent() {
-    return this._dispatch('open-web-url', {
-      url: this.value,
-      purpose: this.purpose
-    });
-  }
-
+  /**
+   * Queries the model for history data.
+   * @param {String} q User query from the input field
+   * @return {[type]} [description]
+   */
   _makeQuery(q) {
-    const e = this._dispatchQueryEvent(q);
-    if (!e.defaultPrevented) {
-      console.warn('URL history model not found');
-      this.$.ac.source = [];
-      return;
-    }
-    e.detail.result
-    .then((result) => {
-      result = result.map((item) => item.url);
-      this.$.ac.source = result;
-    })
-    .catch((cause) => {
-      console.warn(cause);
-      this.$.ac.source = [];
-    });
+    const model = this._model;
+    return model.query(q)
+        .then((result) => {
+          result = result.map((item) => item.url);
+          this._autocomplete.source = result;
+        })
+        .catch((cause) => {
+          console.warn(cause);
+          this._autocomplete.source = [];
+        });
   }
-
+  /**
+   * A handler for keyboard key down event bubbling through this element.
+   * If the target is the input and the key is Enter key then it calls
+   * `_onEnter()` function
+   * @param {KeyboardEvent} e
+   */
   _keyDownHandler(e) {
     if (e.composedPath()[0].nodeName !== 'INPUT') {
       return;
@@ -229,15 +277,44 @@ class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) 
    * This will send an `open-web-url` event.
    */
   _onEnter() {
-    if (this.suggesionsOpened) {
+    if (this.suggestionsOpened) {
       return;
     }
     this._dispatchOpenEvent();
     this.opened = false;
   }
+  /**
+   * Sets value of the control when input value changes
+   * @param {!Event} e
+   */
+  _inputChanged(e) {
+    this.value = e.target.value;
+  }
+  /**
+   * Overrides from ArcOverlayMixin
+   * @param {!Event} e
+   */
+  _onCaptureEsc(e) {
+    if (this.suggestionsOpened) {
+      return;
+    }
+    super._onCaptureEsc(e);
+  }
+  /**
+   * Handler for `opened-changed` event dispatched from the autocomplete.
+   * @param {CustomEvent} e
+   */
+  _suggestionsOpenedHandler(e) {
+    this.suggestionsOpened = e.detail.value;
+  }
 
-  _computeHasValue(value) {
-    return !!value;
+  _openedChanged(opened) {
+    super._openedChanged(opened);
+    if (opened) {
+      setTimeout(() => {
+        this._autocompleteTarget.focus();
+      });
+    }
   }
   /**
    * Fired when the URL has been accepted
@@ -245,12 +322,6 @@ class WebUrlInput extends mixinBehaviors([IronOverlayBehavior], PolymerElement) 
    * @event open-web-url
    * @param {String} url The URL to open
    * @param {String} purpose Value of the `purpose` property.
-   */
-  /**
-   * Dispatched to query for URL history.
-   *
-   * @event url-history-query
-   * @param {String} q
    */
 }
 window.customElements.define('web-url-input', WebUrlInput);
