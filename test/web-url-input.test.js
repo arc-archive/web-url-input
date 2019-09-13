@@ -1,10 +1,7 @@
-import { fixture, assert, nextFrame } from '@open-wc/testing';
-import { a11ySuite } from '@advanced-rest-client/a11y-suite/index.js';
-import sinon from 'sinon/pkg/sinon-esm.js';
+import { fixture, assert, nextFrame, aTimeout } from '@open-wc/testing';
+import * as sinon from 'sinon/pkg/sinon-esm.js';
+import * as MockInteractions from '@polymer/iron-test-helpers/mock-interactions.js';
 import '../web-url-input.js';
-import '@polymer/iron-test-helpers/mock-interactions.js';
-
-/* global MockInteractions  */
 
 describe('<anypoint-button>', function() {
   async function basicFixture() {
@@ -22,35 +19,20 @@ describe('<anypoint-button>', function() {
     });
 
     it('Computes _autocompleteTarget', function() {
-      const input = element.shadowRoot.querySelector('paper-input');
+      const input = element.shadowRoot.querySelector('anypoint-input');
       assert.isTrue(element._autocompleteTarget === input);
     });
 
-    it('Has no model in shadow dom by default', () => {
+    it('has model in shadow dom by default', () => {
       const node = element.shadowRoot.querySelector('url-history-model');
-      assert.notOk(node);
-    });
-
-    it('Adds model to the DOM when requesting reference to it', () => {
-      const node = element._model;
-      assert.equal(node.nodeName, 'URL-HISTORY-MODEL');
-      assert.ok(element.shadowRoot.querySelector('url-history-model'));
-    });
-
-    it('Adds model when querying history', async () => {
-      element.opened = true;
-      const input = element.shadowRoot.querySelector('paper-input');
-      element.value = 'h';
-      await nextFrame();
-      MockInteractions.keyEventOn(input.inputElement, 'input', 97, [], 'a');
-      assert.ok(element.shadowRoot.querySelector('url-history-model'));
+      assert.ok(node);
     });
 
     it('Calls query() on the model', async () => {
       const model = element._model;
       const spy = sinon.spy(model, 'query');
       element.opened = true;
-      const input = element.shadowRoot.querySelector('paper-input');
+      const input = element.shadowRoot.querySelector('anypoint-input');
       element.value = 'h';
       await nextFrame();
       MockInteractions.keyEventOn(input.inputElement, 'input', 97, [], 'a');
@@ -67,7 +49,7 @@ describe('<anypoint-button>', function() {
         element.removeEventListener('open-web-url', clb);
         eventData = e.detail;
       });
-      const button = element.shadowRoot.querySelector('paper-button');
+      const button = element.shadowRoot.querySelector('anypoint-button');
       MockInteractions.tap(button);
       assert.typeOf(eventData, 'object');
       assert.equal(eventData.url, value);
@@ -83,8 +65,8 @@ describe('<anypoint-button>', function() {
       };
       element.value = 'abc';
       await nextFrame();
-      const input = element.shadowRoot.querySelector('paper-input');
-      MockInteractions.pressAndReleaseKeyOn(input.inputElement.inputElement, 13, [], 'Enter');
+      const input = element.shadowRoot.querySelector('anypoint-input');
+      MockInteractions.pressAndReleaseKeyOn(input.inputElement, 13, [], 'Enter');
       assert.isTrue(called);
     });
 
@@ -97,7 +79,7 @@ describe('<anypoint-button>', function() {
         }]);
       };
       element.opened = true;
-      const input = element.shadowRoot.querySelector('paper-input');
+      const input = element.shadowRoot.querySelector('anypoint-input');
       element.value = 'u';
       await nextFrame();
       MockInteractions.keyEventOn(input.inputElement, 'input', 114, [], 'r');
@@ -233,8 +215,9 @@ describe('<anypoint-button>', function() {
       assert.isTrue(spy.called);
     });
 
-    it('Sets autocomplete source when no value', () => {
+    it('Sets autocomplete source when no value', async () => {
       element._autocompleteQuery(ev);
+      await aTimeout();
       assert.deepEqual(element._autocomplete.source, []);
     });
 
@@ -273,7 +256,14 @@ describe('<anypoint-button>', function() {
   });
 
   describe('a11y', () => {
-    a11ySuite('Normal state', '<web-url-input purpose="test"></web-url-input>');
-    a11ySuite('Opened state', '<web-url-input opened></web-url-input>');
+    it('is accessible in normal state', async () => {
+      const input = await fixture(`<web-url-input purpose="test"></web-url-input>`);
+      await assert.isAccessible(input);
+    });
+
+    it('is accessible in opened state', async () => {
+      const input = await fixture(`<web-url-input opened></web-url-input>`);
+      await assert.isAccessible(input);
+    });
   });
 });

@@ -1,7 +1,7 @@
 {
   "name": "@advanced-rest-client/web-url-input",
-  "description": "An element to display a dialog to enter an URL with auto hints",
-  "version": "3.0.0-preview.2",
+  "description": "An element to render a dialog to enter an URL with auto hints",
+  "version": "3.0.0",
   "license": "Apache-2.0",
   "main": "web-url-input.js",
   "keywords": [
@@ -25,37 +25,37 @@
     "url": "https://github.com/advanced-rest-client/web-url-input/issues",
     "email": "arc@mulesoft.com"
   },
+  "dependencies": {
+    "@advanced-rest-client/arc-models": "^3.0.0-preview.11",
+    "@advanced-rest-client/arc-overlay-mixin": "^1.0.1",
+    "@anypoint-web-components/anypoint-autocomplete": "^0.1.2",
+    "@anypoint-web-components/anypoint-button": "^1.0.10",
+    "@anypoint-web-components/anypoint-input": "^0.2.4",
+    "lit-element": "^2.2.1"
+  },
   "devDependencies": {
-    "@advanced-rest-client/a11y-suite": "^1.0.0",
-    "@advanced-rest-client/arc-demo-helper": "^1.0.3",
-    "@advanced-rest-client/testing-karma-sl": "^1.0.2",
-    "@commitlint/cli": "^7.0.0",
+    "@advanced-rest-client/arc-demo-helper": "^1.0.14",
+    "@advanced-rest-client/eslint-config": "^1.1.2",
+    "@advanced-rest-client/prettier-config": "^0.1.0",
+    "@advanced-rest-client/testing-karma-sl": "^1.0.4",
+    "@commitlint/cli": "^8.1.0",
     "@commitlint/config-conventional": "^7.0.0",
-    "@open-wc/eslint-config": "^0.4.1",
-    "@open-wc/prettier-config": "^0.1.0",
-    "@open-wc/testing": "^0.11.1",
-    "@open-wc/testing-karma": "^2.0.6",
+    "@open-wc/testing": "^2.3.3",
+    "@open-wc/testing-karma": "^3.1.29",
     "@polymer/iron-test-helpers": "^3.0.1",
     "@polymer/gen-typescript-declarations": "^1.6.2",
-    "sinon": "^7.3.2",
+    "deepmerge": "^4.0.0",
+    "es-dev-server": "^1.17.2",
     "husky": "^1.0.0",
-    "lint-staged": "^8.0.0",
-    "owc-dev-server": "^1.0.0",
-    "webpack-merge": "^4.1.5",
+    "lint-staged": "^9.2.5",
+    "sinon": "^7.4.2",
     "web-animations-js": "^2.3.2"
-  },
-  "dependencies": {
-    "@advanced-rest-client/arc-models": "^3.0.0-preview.6",
-    "@advanced-rest-client/paper-autocomplete": "^3.0.0",
-    "@advanced-rest-client/arc-overlay-mixin": "^1.0.1",
-    "@polymer/paper-button": "^3.0.0",
-    "@polymer/paper-input": "^3.0.2",
-    "lit-element": "^2.0.1"
   },
   "scripts": {
     "test": "karma start --coverage",
     "update-types": "gen-typescript-declarations --deleteExisting --outDir .",
-    "start": "owc-dev-server --app-index demo/index.html --open --watch",
+    "start": "es-dev-server --app-index demo/index.html --node-resolve --open --watch",
+    "start:compatibility": "es-dev-server --app-index demo/index.html --compatibility all --node-resolve --open --watch",
     "lint:eslint": "eslint --ext .js,.html .",
     "format:eslint": "eslint --ext .js,.html . --fix",
     "lint:prettier": "prettier \"**/*.js\" --list-different || (echo '↑↑ these files are not prettier formatted ↑↑' && exit 1)",
@@ -63,9 +63,9 @@
     "lint": "npm run lint:eslint && npm run lint:prettier",
     "format": "npm run format:eslint && npm run format:prettier",
     "test:watch": "karma start --auto-watch=true --single-run=false",
-    "test:legacy": "karma start --legacy --coverage",
-    "test:legacy:watch": "karma start --legacy --auto-watch=true --single-run=false",
-    "test:sl": "karma start karma.sl.config.js --legacy --coverage"
+    "test:legacy": "karma start --compatibility all --coverage",
+    "test:legacy:watch": "karma start --compatibility all --auto-watch=true --single-run=false",
+    "test:sl": "karma start karma.sl.config.js --compatibility all --coverage"
   },
   "lint-staged": {
     "*.js": [

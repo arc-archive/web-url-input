@@ -13,9 +13,9 @@ the License.
 */
 import { LitElement, html, css } from 'lit-element';
 import { ArcOverlayMixin } from '@advanced-rest-client/arc-overlay-mixin/arc-overlay-mixin.js';
-import '@polymer/paper-input/paper-input.js';
-import '@polymer/paper-button/paper-button.js';
-import '@advanced-rest-client/paper-autocomplete/paper-autocomplete.js';
+import '@anypoint-web-components/anypoint-input/anypoint-input.js';
+import '@anypoint-web-components/anypoint-button/anypoint-button.js';
+import '@anypoint-web-components/anypoint-autocomplete/anypoint-autocomplete.js';
 import '@advanced-rest-client/arc-models/url-history-model.js';
 /**
  * An element to display a dialog to enter an URL with auto hints
@@ -59,65 +59,55 @@ class WebUrlInput extends ArcOverlayMixin(LitElement) {
       align-items: center;
     }
 
-    .editor {
+    .listbox-wrapper {
       position: relative;
+      flex: 1;
+      display: flex;
     }
 
     .main-input {
       flex: 1;
-      flex-basis: 0.000000001px;
-    }
-
-    .action-button {
-      background-color: var(--action-button-background-color);
-      background-image: var(--action-button-background-image);
-      color: var(--action-button-color);
-      transition: var(--action-button-transition);
-    }
-
-    .action-button:hover,
-    .action-button:focus {
-      background-color: var(--action-button-hover-background-color);
-      color: var(--action-button-hover-color);
-    }
-
-    .action-button[disabled] {
-      background: var(--action-button-disabled-background-color);
-      color: var(--action-button-disabled-color);
-      cursor: auto;
-      pointer-events: none;
     }`;
   }
 
   render() {
-    let { suggestionsOpened, _autocompleteTarget, value } = this;
+    let { _autocompleteTarget, value, compatibility, outlined } = this;
     const actionDisabled = !value;
     if (value === undefined) {
       value = '';
     }
     return html`
-    <div class="editor">
-      <div class="inputs">
-        <paper-input
-          label="Enter URL"
+    <div class="inputs">
+      <div class="listbox-wrapper">
+        <anypoint-input
           .value="${value}"
           @input="${this._inputChanged}"
+          ?compatibility="${compatibility}"
+          ?outlined="${outlined}"
           class="main-input"
           type="url"
           required
-          auto-validate
-          error-message="The URL is required"></paper-input>
-        <paper-button
-          class="action-button"
-          @click="${this._onEnter}"
-          ?disabled="${actionDisabled}">Open</paper-button>
+          autovalidate
+          invalidmessage="The URL is required"
+        >
+          <label slot="label">Enter URL</label>
+        </anypoint-input>
+
+        <anypoint-autocomplete
+          loader
+          openonfocus
+          @query="${this._autocompleteQuery}"
+          .target="${_autocompleteTarget}"
+          ?compatibility="${compatibility}"
+          @opened-changed="${this._suggestionsOpenedHandler}"></anypoint-autocomplete>
       </div>
-      <paper-autocomplete loader open-on-focus
-        @query="${this._autocompleteQuery}"
-        .target="${_autocompleteTarget}"
-        .opened="${suggestionsOpened}"
-        @opened-changed="${this._suggestionsOpenedHandler}"></paper-autocomplete>
-    </div>`;
+      <anypoint-button
+        ?compatibility="${compatibility}"
+        @click="${this._onEnter}"
+        ?disabled="${actionDisabled}"
+        emphasis="high">Open</anypoint-button>
+    </div>
+    <url-history-model .eventsTarget="${this}"></url-history-model>`;
   }
 
   static get properties() {
@@ -125,11 +115,11 @@ class WebUrlInput extends ArcOverlayMixin(LitElement) {
       // Current URL value.
       value: { type: String },
       /**
-       * Input target for the `paper-autocomplete` element.
+       * Input target for the `anypoint-autocomplete` element.
        *
        * @type {HTMLElement}
        */
-      _autocompleteTarget: Object,
+      _autocompleteTarget: { type: Object },
       // True when a suggestion box for the URL is opened.
       suggestionsOpened: { type: Boolean },
       /**
@@ -137,7 +127,15 @@ class WebUrlInput extends ArcOverlayMixin(LitElement) {
        * The editor can server different purposes. Re-set the purpose to inform
        * the application about purpose of the event.
        */
-      purpose: String
+      purpose: { type: String },
+      /**
+       * Enables compatibility with Anypoint platform
+       */
+      compatibility: { type: Boolean },
+      /**
+       * Enables Material Design Outlined inputs
+       */
+      outlined: { type: Boolean },
     };
   }
 
@@ -180,14 +178,12 @@ class WebUrlInput extends ArcOverlayMixin(LitElement) {
   }
 
   get _autocomplete() {
-    return this.shadowRoot.querySelector('paper-autocomplete');
+    return this.shadowRoot.querySelector('anypoint-autocomplete');
   }
 
   get _model() {
     if (!this.__model) {
-      this.__model = document.createElement('url-history-model');
-      this.__model.eventsTarget = this;
-      this.shadowRoot.appendChild(this.__model);
+      this.__model = this.shadowRoot.querySelector('url-history-model');
     }
     return this.__model;
   }
@@ -198,12 +194,16 @@ class WebUrlInput extends ArcOverlayMixin(LitElement) {
   }
 
   connectedCallback() {
-    super.connectedCallback();
+    if (super.connectedCallback) {
+      super.connectedCallback();
+    }
     this.addEventListener('keydown', this._keyDownHandler);
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback();
+    if (super.disconnectedCallback) {
+      super.disconnectedCallback();
+    }
     this.removeEventListener('keydown', this._keyDownHandler);
   }
 
@@ -219,7 +219,10 @@ class WebUrlInput extends ArcOverlayMixin(LitElement) {
     e.preventDefault();
     e.stopPropagation();
     if (!e.detail.value) {
-      e.target.source = [];
+      const { target } = e;
+      setTimeout(() => {
+        target.source = [];
+      });
       return;
     }
     this._makeQuery(e.detail.value);
@@ -246,17 +249,15 @@ class WebUrlInput extends ArcOverlayMixin(LitElement) {
    * @param {String} q User query from the input field
    * @return {[type]} [description]
    */
-  _makeQuery(q) {
+  async _makeQuery(q) {
     const model = this._model;
-    return model.query(q)
-        .then((result) => {
-          result = result.map((item) => item.url);
-          this._autocomplete.source = result;
-        })
-        .catch((cause) => {
-          console.warn(cause);
-          this._autocomplete.source = [];
-        });
+    try {
+      let result = await model.query(q);
+      result = result.map((item) => item.url);
+      this._autocomplete.source = result;
+    } catch (e) {
+      this._autocomplete.source = [];
+    }
   }
   /**
    * A handler for keyboard key down event bubbling through this element.
@@ -306,15 +307,6 @@ class WebUrlInput extends ArcOverlayMixin(LitElement) {
    */
   _suggestionsOpenedHandler(e) {
     this.suggestionsOpened = e.detail.value;
-  }
-
-  _openedChanged(opened) {
-    super._openedChanged(opened);
-    if (opened) {
-      setTimeout(() => {
-        this._autocompleteTarget.focus();
-      });
-    }
   }
   /**
    * Fired when the URL has been accepted

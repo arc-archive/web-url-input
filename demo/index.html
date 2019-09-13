@@ -36,6 +36,11 @@
                     0 3px 5px -1px rgba(0, 0, 0, 0.4);
     }
 
+    body.styled {
+      --anypoiont-autocomplete-dropdown-shaddow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+      --anypoiont-dropdown-shaddow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+    }
+
     html.dark,
     html.dark body {
       background-color: #263238 !important;
@@ -63,7 +68,8 @@
   </style>
 </head>
 
-<body unresolved="">
+<body class="styled">
+  <url-history-model></url-history-model>
   <web-url-input></web-url-input>
 
   <section class="vertical-section-container centered card" role="main">

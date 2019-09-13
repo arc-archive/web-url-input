@@ -55,7 +55,7 @@ declare namespace UiElements {
     readonly _model: any;
 
     /**
-     * Input target for the `paper-autocomplete` element.
+     * Input target for the `anypoint-autocomplete` element.
      */
     _autocompleteTarget: HTMLElement|null;
 
@@ -65,6 +65,16 @@ declare namespace UiElements {
      * the application about purpose of the event.
      */
     purpose: string|null|undefined;
+
+    /**
+     * Enables compatibility with Anypoint platform
+     */
+    compatibility: boolean|null|undefined;
+
+    /**
+     * Enables Material Design Outlined inputs
+     */
+    outlined: boolean|null|undefined;
     render(): any;
     connectedCallback(): void;
     disconnectedCallback(): void;
@@ -118,7 +128,6 @@ declare namespace UiElements {
      * Handler for `opened-changed` event dispatched from the autocomplete.
      */
     _suggestionsOpenedHandler(e: CustomEvent|null): void;
-    _openedChanged(opened: any): void;
   }
 }
 
