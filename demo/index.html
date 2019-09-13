@@ -1,83 +1,107 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
   <title>web-url-input demo</title>
-  <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
-  <link rel="import" href="../../shadycss/apply-shim.html">
-  <link rel="import" href="../../polymer/lib/elements/custom-style.html">
-  <link rel="import" href="../../polymer/lib/elements/dom-bind.html">
-  <link rel="import" href="../../paper-button/paper-button.html">
-  <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
-  <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
-  <link rel="import" href="../../arc-models/url-history-model.html">
-  <link rel="import" href="../../paper-toast/paper-toast.html">
-  <link rel="import" href="../../app-pouchdb/pouchdb.html">
-  <link rel="import" href="../web-url-input.html">
+  <script type="module" src="../node_modules/@advanced-rest-client/arc-demo-helper/arc-demo-helper.js"></script>
+  <script type="module" src="../node_modules/@polymer/paper-button/paper-button.js"></script>
+  <script type="module" src="../web-url-input.js"></script>
   <style>
-  body,
-  html {
-    background-color: #e5e5e5 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  </style>
-  <custom-style>
-    <style is="custom-style" include="demo-pages-shared-styles">
-    :root {
+    body,
+    html {
+      background-color: #e5e5e5 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    html {
       --primary-color: #00A2DF;
-      --action-button: {
-        background-color: var(--primary-color);
-        background-image: none;
-        color: white;
-        transition: background-color 300ms linear;
-      };
+      --action-button-background-color: var(--primary-color);
+      --action-button-background-image: none;
+      --action-button-color: #fff;
+      --action-button-transition: background-color 300ms linear;
+      --action-button-hover-background-color: #04b3f5;
+      --action-button-hover-color: #fff;
+      --action-button-disabled-background-color: #eaeaea;
+      --action-button-disabled-color: #a8a8a8;
+
+      --box-shadow-4dp: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                    0 1px 10px 0 rgba(0, 0, 0, 0.12),
+                    0 2px 4px -1px rgba(0, 0, 0, 0.4);
+      --box-shadow-6dp: 0 6px 10px 0 rgba(0, 0, 0, 0.14),
+                    0 1px 18px 0 rgba(0, 0, 0, 0.12),
+                    0 3px 5px -1px rgba(0, 0, 0, 0.4);
+    }
+
+    body.styled {
+      --anypoiont-autocomplete-dropdown-shaddow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+      --anypoiont-dropdown-shaddow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+    }
+
+    html.dark,
+    html.dark body {
+      background-color: #263238 !important;
+      --primary-color: #00A2DF;
+      --web-url-input-background-color: #455A64;
+      --paper-input-container-color: #fff;
+      --error-color: #FF5722;
+      --paper-input-container-input-color: #fff;
+      --action-button-background-color: #F44336;
+      --action-button-hover-background-color: #E53935;
     }
 
     .card {
-      @apply --shadow-elevation-4dp;
+      --box-shadow: var(--box-shadow-4dp);
       padding: 20px;
       margin-top: 120px;
       margin-bottom: 20px;
       box-sizing: border-box;
       background-color: #fff;
     }
-    </style>
-  </custom-style>
-</head>
-<body unresolved>
-  <dom-bind id="app">
-    <template>
-      <web-url-input></web-url-input>
-      <url-history-model></url-history-model>
-      <section class="vertical-section-container centered card" role="main">
-        <paper-button raised on-click="openEditor">Open the URL editor</paper-button>
-      </section>
 
-      <paper-toast text="Open browser window requested" opened="{{actionToastOpened}}"></paper-toast>
-    </template>
-  </dom-bind>
-  <script>
-  (function(app) {
-    app.actionToastOpened = false;
-    app.openEditor = function() {
-      document.querySelector('web-url-input').opened = true;
-    };
-    app.openUrlHandler = function(e) {
-      app.actionToastOpened = true;
-      const ev = new CustomEvent('url-history-store', {
-        detail: {
-          value: e.detail.url
-        },
-        cancelable: true,
-        bubbles: true
+    .options-row {
+      margin: 12px 0;
+    }
+  </style>
+</head>
+
+<body class="styled">
+  <url-history-model></url-history-model>
+  <web-url-input></web-url-input>
+
+  <section class="vertical-section-container centered card" role="main">
+    <paper-button raised id="openEditor">Open the URL editor</paper-button>
+    <div class="options-row">
+      <label><input type="checkbox" id="themeToggle"/> Dark theme</label>
+    </div>
+  </section>
+
+  <script type="module">
+    (function() {
+      document.getElementById('openEditor').addEventListener('click', () => {
+        document.querySelector('web-url-input').opened = true;
       });
-      document.dispatchEvent(ev);
-    };
-    window.addEventListener('open-web-url', app.openUrlHandler);
-  })(document.getElementById('app'));
+
+      document.getElementById('themeToggle').addEventListener('change', () => {
+        document.querySelector('html').classList.toggle('dark');
+      });
+
+      function openUrlHandler(e) {
+        const ev = new CustomEvent('url-history-store', {
+          detail: {
+            value: e.detail.url
+          },
+          cancelable: true,
+          bubbles: true
+        });
+        document.dispatchEvent(ev);
+      };
+      window.addEventListener('open-web-url', openUrlHandler);
+    })(document.getElementById('app'));
   </script>
 </body>
+
 </html>
