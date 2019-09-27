@@ -47,7 +47,7 @@ class WebUrlInput extends ArcOverlayMixin(LitElement) {
     :host {
       background-color: var(--web-url-input-background-color, #fff);
       padding: 20px;
-      top: 20px;
+      top: 82px;
       max-width: 90%;
       width: 100%;
       box-shadow: var(--box-shadow-6dp);
