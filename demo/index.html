@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
   <title>web-url-input demo</title>
   <script type="module" src="../node_modules/@advanced-rest-client/arc-demo-helper/arc-demo-helper.js"></script>
-  <script type="module" src="../node_modules/@polymer/paper-button/paper-button.js"></script>
+  <script type="module" src="../node_modules/@anypoint-web-components/anypoint-button/anypoint-button.js"></script>
   <script type="module" src="../web-url-input.js"></script>
   <style>
     body,
@@ -73,14 +73,14 @@
   <web-url-input></web-url-input>
 
   <section class="vertical-section-container centered card" role="main">
-    <paper-button raised id="openEditor">Open the URL editor</paper-button>
+    <anypoint-button emphasis="high" id="openEditor">Open the URL editor</anypoint-button>
     <div class="options-row">
       <label><input type="checkbox" id="themeToggle"/> Dark theme</label>
     </div>
   </section>
 
   <script type="module">
-    (function() {
+    (() => {
       document.getElementById('openEditor').addEventListener('click', () => {
         document.querySelector('web-url-input').opened = true;
       });
@@ -90,6 +90,7 @@
       });
 
       function openUrlHandler(e) {
+        console.log(`OPENING ${e.detail.url}`);
         const ev = new CustomEvent('url-history-store', {
           detail: {
             value: e.detail.url

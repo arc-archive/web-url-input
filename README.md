@@ -1,6 +1,6 @@
 [![Published on NPM](https://img.shields.io/npm/v/@advanced-rest-client/web-url-input.svg)](https://www.npmjs.com/package/@advanced-rest-client/web-url-input)
 
-[![Build Status](https://travis-ci.org/advanced-rest-client/web-url-input.svg?branch=stage)](https://travis-ci.org/advanced-rest-client/web-url-input)
+[![Build Status](https://travis-ci.com/advanced-rest-client/web-url-input.svg)](https://travis-ci.com/advanced-rest-client/web-url-input)
 
 [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/advanced-rest-client/web-url-input)
 
@@ -68,7 +68,3 @@ npm start
 ```sh
 npm test
 ```
-
-## API components
-
-This components is a part of [API components ecosystem](https://elements.advancedrestclient.com/)

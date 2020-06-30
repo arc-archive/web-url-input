@@ -1,24 +1,29 @@
 import { fixture, assert, nextFrame, aTimeout } from '@open-wc/testing';
-import * as sinon from 'sinon/pkg/sinon-esm.js';
+import * as sinon from 'sinon';
 import * as MockInteractions from '@polymer/iron-test-helpers/mock-interactions.js';
 import '../web-url-input.js';
 
-describe('<anypoint-button>', function() {
+/** @typedef {import('../index').WebUrlInput} WebUrlInput */
+
+describe('<anypoint-button>', () => {
+  /**
+   * @return {Promise<WebUrlInput>}
+   */
   async function basicFixture() {
-    return (await fixture(`<web-url-input purpose="test"></web-url-input>`));
+    return fixture(`<web-url-input purpose="test"></web-url-input>`);
   }
 
-  describe('basic', function() {
-    let element;
+  describe('basic', () => {
+    let element = /** @type WebUrlInput */ (null);
     beforeEach(async () => {
       element = await basicFixture();
     });
 
-    it('`web-url-input` is hidden by default', function() {
+    it('`web-url-input` is hidden by default', () => {
       assert.equal(element.style.display, 'none');
     });
 
-    it('Computes _autocompleteTarget', function() {
+    it('Computes _autocompleteTarget', () => {
       const input = element.shadowRoot.querySelector('anypoint-input');
       assert.isTrue(element._autocompleteTarget === input);
     });
@@ -44,39 +49,47 @@ describe('<anypoint-button>', function() {
       element.value = value;
       element.opened = true;
       await nextFrame();
-      let eventData;
-      element.addEventListener('open-web-url', function clb(e) {
-        element.removeEventListener('open-web-url', clb);
-        eventData = e.detail;
-      });
+      const spy = sinon.spy();
+      element.addEventListener('open-web-url', spy);
       const button = element.shadowRoot.querySelector('anypoint-button');
       MockInteractions.tap(button);
-      assert.typeOf(eventData, 'object');
-      assert.equal(eventData.url, value);
-      assert.equal(eventData.purpose, 'test');
+      const { detail } = spy.args[0][0];
+      assert.typeOf(detail, 'object');
+      assert.equal(detail.url, value);
+      assert.equal(detail.purpose, 'test');
     });
 
     // This should be tested at the end
-    it('Accepts selection on enter', async () => {
+    it('accepts selection on enter', async () => {
       element.opened = true;
       let called = false;
-      element._onEnter = function() {
+      element._onEnter = () => {
         called = true;
       };
       element.value = 'abc';
       await nextFrame();
       const input = element.shadowRoot.querySelector('anypoint-input');
-      MockInteractions.pressAndReleaseKeyOn(input.inputElement, 13, [], 'Enter');
+      // @ts-ignore
+      MockInteractions.pressAndReleaseKeyOn(
+        input.inputElement,
+        'Enter',
+        [],
+        'Enter'
+      );
       assert.isTrue(called);
     });
 
     it('Opens suggestions after query', async () => {
+      // @ts-ignore
       element._model.query = () => {
-        return Promise.resolve([{
-          url: 'url1'
-        }, {
-          url: 'url2'
-        }]);
+        return Promise.resolve([
+          {
+            url: 'url1',
+          },
+          {
+            url: 'url2',
+          },
+        ]);
       };
       element.opened = true;
       const input = element.shadowRoot.querySelector('anypoint-input');
@@ -104,22 +117,23 @@ describe('<anypoint-button>', function() {
   });
 
   describe('_keyDownHandler()', () => {
-    let element;
+    let element = /** @type WebUrlInput */ (null);
     beforeEach(async () => {
       element = await basicFixture();
       await nextFrame();
     });
 
-    function addInput(element) {
+    function addInput(el) {
       const input = document.createElement('input');
-      element.shadowRoot.appendChild(input);
+      el.shadowRoot.appendChild(input);
       return input;
     }
 
     it('Calls _onEnter() when is Enter', () => {
       const input = addInput(element);
       const spy = sinon.spy(element, '_onEnter');
-      MockInteractions.keyEventOn(input, 'keydown', 13, [], 'Enter');
+      // @ts-ignore
+      MockInteractions.keyEventOn(input, 'keydown', 'Enter', [], 'Enter');
       assert.isTrue(spy.called);
     });
 
@@ -138,7 +152,7 @@ describe('<anypoint-button>', function() {
   });
 
   describe('_dispatchOpenEvent()', () => {
-    let element;
+    let element = /** @type WebUrlInput */ (null);
     beforeEach(async () => {
       element = await basicFixture();
     });
@@ -150,7 +164,7 @@ describe('<anypoint-button>', function() {
       element._dispatchOpenEvent();
       assert.deepEqual(spy.args[0][0].detail, {
         url: 'https://',
-        purpose: 'test'
+        purpose: 'test',
       });
     });
 
@@ -162,18 +176,22 @@ describe('<anypoint-button>', function() {
 
   describe('_makeQuery()', () => {
     const query = 'test-query';
-    let element;
+    let element = /** @type WebUrlInput */ (null);
     beforeEach(async () => {
       element = await basicFixture();
     });
 
     it('Sets autocomplete source', async () => {
+      // @ts-ignore
       element._model.query = () => {
-        return Promise.resolve([{
-          url: 'url1'
-        }, {
-          url: 'url2'
-        }]);
+        return Promise.resolve([
+          {
+            url: 'url1',
+          },
+          {
+            url: 'url2',
+          },
+        ]);
       };
 
       await element._makeQuery(query);
@@ -190,7 +208,7 @@ describe('<anypoint-button>', function() {
   });
 
   describe('_autocompleteQuery()', () => {
-    let element;
+    let element = /** @type WebUrlInput */ (null);
     let ev;
     beforeEach(async () => {
       element = await basicFixture();
@@ -199,7 +217,7 @@ describe('<anypoint-button>', function() {
         stopPropagation: () => {},
         preventDefault: () => {},
         detail: {},
-        target: element._autocomplete
+        target: element._autocomplete,
       };
     });
 
@@ -209,7 +227,7 @@ describe('<anypoint-button>', function() {
       assert.isTrue(spy.called);
     });
 
-    it('Prevent\'s event default', () => {
+    it("Prevent's event default", () => {
       const spy = sinon.spy(ev, 'preventDefault');
       element._autocompleteQuery(ev);
       assert.isTrue(spy.called);
@@ -217,7 +235,7 @@ describe('<anypoint-button>', function() {
 
     it('Sets autocomplete source when no value', async () => {
       element._autocompleteQuery(ev);
-      await aTimeout();
+      await aTimeout(0);
       assert.deepEqual(element._autocomplete.source, []);
     });
 
@@ -230,7 +248,7 @@ describe('<anypoint-button>', function() {
   });
 
   describe('_onEnter()', () => {
-    let element;
+    let element = /** @type WebUrlInput */ (null);
     beforeEach(async () => {
       element = await basicFixture();
       element.opened = true;
@@ -257,7 +275,9 @@ describe('<anypoint-button>', function() {
 
   describe('a11y', () => {
     it('is accessible in normal state', async () => {
-      const input = await fixture(`<web-url-input purpose="test"></web-url-input>`);
+      const input = await fixture(
+        `<web-url-input purpose="test"></web-url-input>`
+      );
       await assert.isAccessible(input);
     });
 
